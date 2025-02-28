@@ -1,9 +1,11 @@
 #include <Arduino.h>
 #include <Servo.h>
+//#include <time.h>
+
 
 const int pinPump[] = {2,4,7,8};
-const int pinServo = 3;
-const int pinLed1[] = {5,6,10};
+const int pinServo = 9;
+const int pinLed1[] = {3,5,6};
 const int trigPin = A1;
 const int echoPin = A0;
 
@@ -28,21 +30,48 @@ void pump(int i, bool on){
 }
 
 
-void pumpPWM(int i, int time){
-  if(time < 100) {
-    digitalWrite(pinPump[i], LOW);
-  } else {
-    digitalWrite(pinPump[i], HIGH);
-    delay(time);
-    digitalWrite(pinPump[i], LOW);
-    delay(time);
-  }
-}
+// void pumpPWM(int i, int time){
+//   if(time < 100) {
+//     digitalWrite(pinPump[i], LOW);
+//   } else {
+//     digitalWrite(pinPump[i], HIGH);
+//     delay(time);
+//     digitalWrite(pinPump[i], LOW);
+//     delay(time);
+//   }
+// }
 
-float distanceRead(){
+float readDistance() {
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  unsigned long duration = pulseIn(echoPin, HIGH);
+  float distance = (duration * 0.0343) / 2;
+  return distance;
+}
+
+
+
+unsigned long previousMicros = 0;
+bool distanceReadFlagA = false;
+bool distanceReadFlagB = false;
+float distanceRead(){
+  if(!distanceReadFlagA){
+    previousMicros = micros();
+    digitalWrite(trigPin, LOW);
+    if(micros() - previousMicros < 2){
+      return -1;
+    }
+    distanceReadFlagA = true;
+    previousMicros = 0;
+  }
+  digitalWrite(trigPin, HIGH);
+  if(micros() - previousMicros < 10){
+    return -1;
+  }
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
   float duration = pulseIn(echoPin, HIGH);
@@ -114,37 +143,39 @@ void colorRun() {
 long lastTransition = -5000;
 
 void loop() {
-    // if (millis() - lastTransition >= 1500) {
-    //   if (state == 0) {
-    //     transitionColor(0, 0, 80, 2000);
-    //   } else {
-    //     transitionColor(255, 0, 0, 2000);
-    //   }
-      
-    //   lastTransition = millis();
-    //   state = !state;
-    //   Serial.println("Transitioning");
-    // }
-    // colorRun();
-    pump(2, true);
-    pump(1, true);
-    pump(3, true);
-    led1(255, 0, 0);
-    delay(500);
-    led1(0, 255, 0);
-    delay(500);
-    led1(0, 0, 255);
-    delay(500);
-    trasiem();
-    // pump(3, true);
-    // delay(5000);
-    // pump(1, true);
-    // delay(5000);
-    // pump(3, false);
+  if (millis() - lastTransition >= 1500) {
+    if (state == 0) {
+      transitionColor(10, 250, 10, 2000);
+    } else {
+      transitionColor(250, 10, 250, 2000);
+    }
     
-    // pump(1, false);
-    // delay(5000);
-    // Serial.println(distanceRead());
-  
+    lastTransition = millis();
+    state = !state;
+    Serial.println("Transitioning");
   }
+  colorRun();
+
+
+  // pump(2, true);
+  // pump(1, true);
+  // pump(3, true);
+  // led1(255, 0, 0);
+  // delay(500);
+  // led1(0, 255, 0);
+  // delay(500);
+  // led1(0, 0, 255);
+  // delay(500);
+  trasiem();
+  // pump(3, true);
+  // delay(5000);
+  // pump(1, true);
+  // delay(5000);
+  // pump(3, false);S
+  
+  // pump(1, false);
+  // delay(5000);
+  // Serial.println(distanceRead());
+
+}
 
