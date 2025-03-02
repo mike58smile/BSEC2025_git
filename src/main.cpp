@@ -3,7 +3,7 @@
 //#include <time.h>
 
 
-const int pinPump[] = {2,4,7,8};
+const int pinPump[] = {4,7,8};
 const int pinServo = 9;
 const int pinLed1[] = {3,5,6};
 const int trigPin = A1;
@@ -98,9 +98,12 @@ void setup() {
   pump(2, false);
   pump(1, false);
   Serial.begin(9600);
-  while(distanceRead() > 10){
+  while(distanceRead() > 80){
+    led1(255, 0, 0);
     delay(100);
+    //Serial.println(distanceRead());
   }
+  
   //led1(50,50,50);
 }
 
@@ -143,30 +146,42 @@ void colorRun() {
 long lastTransition = -5000;
 
 void loop() {
-  if (millis() - lastTransition >= 1500) {
-    if (state == 0) {
-      transitionColor(10, 250, 10, 2000);
-    } else {
-      transitionColor(250, 10, 250, 2000);
-    }
+  pump(2, true);
+  pump(1, true);
+  pump(3, true);
+  // if (millis() - lastTransition >= 1500) {
+  //   if (state == 0) {
+  //     transitionColor(10, 10, 10, 2000);
+  //   } else {
+  //     transitionColor(250, 10, 10, 2000);
+  //   }
     
-    lastTransition = millis();
-    state = !state;
-    Serial.println("Transitioning");
+  //   lastTransition = millis();
+  //   state = !state;
+  //   Serial.println("Transitioning");
+  // }
+  // colorRun();
+  //Serial.println(distanceRead());
+  if(distanceRead() < 50 && distanceRead() > 30){
+    led1(0, 255, 0);
+    delay(100);
+    led1(255, 255, 0);
+    delay(100);
   }
-  colorRun();
+  if(distanceRead() < 30 ){
+    led1(0, 0, 255);
+    delay(100);
+    led1(0, 255, 0);
+    delay(100);
+    led1(255, 0, 0);
+    delay(100);
+    
+    trasiem();
+  }
 
-
-  // pump(2, true);
-  // pump(1, true);
-  // pump(3, true);
-  // led1(255, 0, 0);
-  // delay(500);
-  // led1(0, 255, 0);
-  // delay(500);
-  // led1(0, 0, 255);
-  // delay(500);
-  trasiem();
+  
+  
+  
   // pump(3, true);
   // delay(5000);
   // pump(1, true);
@@ -175,7 +190,7 @@ void loop() {
   
   // pump(1, false);
   // delay(5000);
-  // Serial.println(distanceRead());
+  
 
 }
 
